@@ -1,5 +1,5 @@
-using System;
 using PraxisChessEngine.Business.Chess;
+using System;
 
 namespace PraxisChessEngine.Business.Search;
 

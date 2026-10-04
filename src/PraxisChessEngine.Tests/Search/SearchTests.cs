@@ -1,7 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Threading;
 using PraxisChessEngine.Business.Chess;
 using PraxisChessEngine.Business.Search;
+using System.Threading;
 
 namespace PraxisChessEngine.Tests.Search;
 

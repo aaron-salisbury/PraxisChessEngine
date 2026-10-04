@@ -1,9 +1,9 @@
+using PraxisChessEngine.Business.Chess;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
-using System.Diagnostics;
-using PraxisChessEngine.Business.Chess;
 
 namespace PraxisChessEngine.Business.Search;
 

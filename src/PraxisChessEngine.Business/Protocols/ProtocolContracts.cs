@@ -1,7 +1,7 @@
+using PraxisChessEngine.Business.Engine;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using PraxisChessEngine.Business.Engine;
 
 namespace PraxisChessEngine.Business.Protocols;
 
