@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using PraxisChessEngine.Business.Chess;
 using PraxisChessEngine.Business.Engine;
 

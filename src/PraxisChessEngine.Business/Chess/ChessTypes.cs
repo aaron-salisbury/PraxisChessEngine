@@ -1,3 +1,4 @@
+using System;
 namespace PraxisChessEngine.Business.Chess;
 
 public enum PieceColor

@@ -1,3 +1,9 @@
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using PraxisChessEngine.Business.Chess;
 using PraxisChessEngine.Business.Engine;
 using PraxisChessEngine.Business.Protocols;

@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 namespace PraxisChessEngine.Business.Chess;
 
 public sealed class MoveGenerator

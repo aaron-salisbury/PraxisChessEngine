@@ -1,3 +1,4 @@
+using System;
 using PraxisChessEngine.Business.Chess;
 
 namespace PraxisChessEngine.Business.Search;
