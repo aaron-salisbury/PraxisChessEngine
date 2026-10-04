@@ -14,12 +14,14 @@ namespace PraxisChessEngine.Integrations.Protocols;
 internal sealed class UciProtocol : IEngineProtocol
 {
     private readonly IEngineSession _session;
+    private readonly EngineIdentity _identity;
     private CancellationTokenSource? _searchCancellation;
     private Task? _searchTask;
 
-    public UciProtocol(IEngineSession session)
+    public UciProtocol(IEngineSession session, EngineIdentity identity)
     {
         _session = session;
+        _identity = identity;
     }
 
     public async Task RunAsync(TextReader input, TextWriter output, CancellationToken cancellationToken)
@@ -35,8 +37,8 @@ internal sealed class UciProtocol : IEngineProtocol
             string command = line.Trim();
             if (command == "uci")
             {
-                await output.WriteLineAsync("id name Praxis Chess Engine");
-                await output.WriteLineAsync("id author Aaron Salisbury");
+                await output.WriteLineAsync($"id name {_identity.DisplayName}");
+                await output.WriteLineAsync($"id author {_identity.Author}");
                 await output.WriteLineAsync("uciok");
             }
             else if (command == "isready")
@@ -231,8 +233,8 @@ internal sealed class UciProtocol : IEngineProtocol
 
 internal sealed class UciProtocolFactory : IEngineProtocolFactory
 {
-    public IEngineProtocol Create(IEngineSession session)
+    public IEngineProtocol Create(IEngineSession session, EngineIdentity identity)
     {
-        return new UciProtocol(session);
+        return new UciProtocol(session, identity);
     }
 }
