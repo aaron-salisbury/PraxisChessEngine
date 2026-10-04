@@ -9,12 +9,8 @@ This project uses [Semantic Versioning](https://semver.org/).
 - **MINOR** version: Backward-compatible functionality
 - **PATCH** version: Backward-compatible bug fixes
 
-## Roadmap
+## Future Enhancements
 
-The engine does function in its current state but is not complete.
-
-  - Enhance valid move discovery, such as not attempting to castle if a space in-between can be attacked.
-  - Expand promotion logic. Right now, always assuming promotion to queen.
-  - Expand opening selection. Right now, first move of the engine is always e2e4 and from there will follow any opening it can use from the ECO.
-  - Develop mid-game move evaluation. Right now, a random legal move is selected.
+  - Replace opening-book lookup by FEN string an established opening-book format such as [Polyglot](https://hgm.nubati.net/book_format.html).
+  - Expand opening repertoire to thousands, or millions of known positions. With positions having several candidate moves, perhaps with weights.
   - Implement additional communication protocol. Right now, only UCI has been started, but developing a [CECP](https://www.chessprogramming.org/Chess_Engine_Communication_Protocol) (Winboard) protocol would make the engine compatible with more interfaces.
