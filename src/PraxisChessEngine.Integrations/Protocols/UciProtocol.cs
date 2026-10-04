@@ -1,4 +1,5 @@
 using PraxisChessEngine.Business.Chess;
+using PraxisChessEngine.Business.Diagnostics;
 using PraxisChessEngine.Business.Engine;
 using PraxisChessEngine.Business.Protocols;
 using PraxisChessEngine.Business.Search;
@@ -15,13 +16,15 @@ internal sealed class UciProtocol : IEngineProtocol
 {
     private readonly IEngineSession _session;
     private readonly EngineIdentity _identity;
+    private readonly IDiagnosticLogger _logger;
     private CancellationTokenSource? _searchCancellation;
     private Task? _searchTask;
 
-    public UciProtocol(IEngineSession session, EngineIdentity identity)
+    public UciProtocol(IEngineSession session, EngineIdentity identity, IDiagnosticLogger logger)
     {
         _session = session;
         _identity = identity;
+        _logger = logger;
     }
 
     public async Task RunAsync(TextReader input, TextWriter output, CancellationToken cancellationToken)
@@ -35,15 +38,16 @@ internal sealed class UciProtocol : IEngineProtocol
             }
 
             string command = line.Trim();
+            _logger.Log($"GUI -> {command}");
             if (command == "uci")
             {
-                await output.WriteLineAsync($"id name {_identity.DisplayName}");
-                await output.WriteLineAsync($"id author {_identity.Author}");
-                await output.WriteLineAsync("uciok");
+                await WriteAsync(output, $"id name {_identity.DisplayName}");
+                await WriteAsync(output, $"id author {_identity.Author}");
+                await WriteAsync(output, "uciok");
             }
             else if (command == "isready")
             {
-                await output.WriteLineAsync("readyok");
+                await WriteAsync(output, "readyok");
             }
             else if (command == "ucinewgame")
             {
@@ -109,6 +113,7 @@ internal sealed class UciProtocol : IEngineProtocol
             : moveText.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(Move.Parse);
 
         _session.SetPosition(fen, moves);
+        _logger.Log($"Position FEN: {_session.Position.ToFen()}");
     }
 
     private void StartSearch(string command, TextWriter output, CancellationToken applicationCancellation)
@@ -121,9 +126,21 @@ internal sealed class UciProtocol : IEngineProtocol
         {
             try
             {
+                string searchFen = _session.Position.ToFen();
+                _logger.Log($"Search FEN: {searchFen}");
                 SearchResult result = await _session.SearchAsync(limits, searchToken);
-                string bestMove = result.BestMove?.ToString() ?? "0000";
-                await output.WriteLineAsync($"bestmove {bestMove}");
+                Move? bestMove = result.BestMove;
+                IReadOnlyList<Move> legalMoves = new MoveGenerator().GenerateLegalMoves(Position.FromFen(searchFen));
+
+                if (bestMove.HasValue && !legalMoves.Contains(bestMove.Value))
+                {
+                    _logger.Log($"Illegal search result '{bestMove.Value}'. FEN: {searchFen}. Legal moves: {string.Join(' ', legalMoves)}");
+                    return;
+                }
+
+                string bestMoveText = bestMove?.ToString() ?? "0000";
+                _logger.Log($"Search result: bestmove {bestMoveText}; depth {result.Depth}; score {result.Score}; nodes {result.Nodes}");
+                await WriteAsync(output, $"bestmove {bestMoveText}");
             }
             catch (OperationCanceledException)
             {
@@ -211,6 +228,12 @@ internal sealed class UciProtocol : IEngineProtocol
         return new SearchLimits(depth, moveTime, nodes);
     }
 
+    private async Task WriteAsync(TextWriter output, string message)
+    {
+        _logger.Log($"Praxis -> {message}");
+        await output.WriteLineAsync(message);
+    }
+
     private async Task StopSearchAsync()
     {
         if (_searchCancellation is null)
@@ -233,8 +256,8 @@ internal sealed class UciProtocol : IEngineProtocol
 
 internal sealed class UciProtocolFactory : IEngineProtocolFactory
 {
-    public IEngineProtocol Create(IEngineSession session, EngineIdentity identity)
+    public IEngineProtocol Create(IEngineSession session, EngineIdentity identity, IDiagnosticLogger logger)
     {
-        return new UciProtocol(session, identity);
+        return new UciProtocol(session, identity, logger);
     }
 }
