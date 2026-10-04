@@ -6,6 +6,11 @@ using System.Threading.Tasks;
 
 namespace PraxisChessEngine.Business.Engine;
 
+/// <summary>
+/// An opening-book store used to eliminate the need to calculate the best lines during approximately the
+/// first ten moves of the game, where the positions are extremely open-ended and thus computationally
+/// expensive to evaluate.
+/// </summary>
 public interface IOpeningBook
 {
     Move? FindMove(Position position);
