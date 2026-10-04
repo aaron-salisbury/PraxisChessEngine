@@ -2,7 +2,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PraxisChessEngine.Business.Chess;
 using PraxisChessEngine.Business.Engine;
 using PraxisChessEngine.Business.Search;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
