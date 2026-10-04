@@ -1,3 +1,4 @@
+using PraxisChessEngine.Business.Diagnostics;
 using PraxisChessEngine.Business.Engine;
 using System.IO;
 using System.Threading;
@@ -25,5 +26,5 @@ public interface IEngineProtocol
 
 public interface IEngineProtocolFactory
 {
-    IEngineProtocol Create(IEngineSession session, EngineIdentity identity);
+    IEngineProtocol Create(IEngineSession session, EngineIdentity identity, IDiagnosticLogger logger);
 }
