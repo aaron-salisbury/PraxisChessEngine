@@ -18,16 +18,7 @@ public class Program
         {
             IEngineSession session = serviceProvider.GetRequiredService<IEngineSession>();
             IEngineProtocolFactory protocolFactory = serviceProvider.GetRequiredService<IEngineProtocolFactory>();
-            Assembly assembly = typeof(Program).Assembly;
-            string product = assembly.GetCustomAttribute<AssemblyProductAttribute>()?.Product
-                ?? assembly.GetName().Name
-                ?? "Praxis Chess Engine";
-            string author = assembly.GetCustomAttribute<AssemblyCompanyAttribute>()?.Company ?? string.Empty;
-            string informationalVersion = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
-                ?? assembly.GetName().Version?.ToString()
-                ?? string.Empty;
-            EngineIdentity identity = new(product, author, informationalVersion);
-            IEngineProtocol protocol = protocolFactory.Create(session, identity);
+            IEngineProtocol protocol = protocolFactory.Create(session, GetEngineIdentity());
 
             await protocol.RunAsync(Console.In, Console.Out, CancellationToken.None);
             return 0;
@@ -37,5 +28,18 @@ public class Program
             Console.Error.WriteLine($"Application terminated unexpectedly: {ex}");
             return 1;
         }
+    }
+
+    private static EngineIdentity GetEngineIdentity()
+    {
+        Assembly assembly = typeof(Program).Assembly;
+
+        return new EngineIdentity(
+            assembly.GetCustomAttribute<AssemblyProductAttribute>()?.Product
+                ?? throw new InvalidOperationException("AssemblyProductAttribute is missing."),
+            assembly.GetCustomAttribute<AssemblyCompanyAttribute>()?.Company
+                ?? throw new InvalidOperationException("AssemblyCompanyAttribute is missing."),
+            assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
+                ?? throw new InvalidOperationException("AssemblyInformationalVersionAttribute is missing."));
     }
 }
