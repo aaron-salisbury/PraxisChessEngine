@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using PraxisChessEngine.Business.Chess;
 using PraxisChessEngine.Business.Engine;
-using PraxisChessEngine.Business.Protocols;
+using PraxisChessEngine.Integrations.Protocols;
 using PraxisChessEngine.Business.Search;
 
 namespace PraxisChessEngine.Tests.Protocols;

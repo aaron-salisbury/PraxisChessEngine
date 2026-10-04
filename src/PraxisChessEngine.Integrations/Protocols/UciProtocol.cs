@@ -1,3 +1,4 @@
+using PraxisChessEngine.Business.Protocols;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,7 +9,7 @@ using PraxisChessEngine.Business.Chess;
 using PraxisChessEngine.Business.Engine;
 using PraxisChessEngine.Business.Search;
 
-namespace PraxisChessEngine.Business.Protocols;
+namespace PraxisChessEngine.Integrations.Protocols;
 
 internal sealed class UciProtocol : IEngineProtocol
 {

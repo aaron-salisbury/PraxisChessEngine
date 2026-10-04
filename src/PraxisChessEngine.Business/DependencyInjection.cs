@@ -1,9 +1,8 @@
-using System;
 using Microsoft.Extensions.DependencyInjection;
 using PraxisChessEngine.Business.Chess;
 using PraxisChessEngine.Business.Engine;
-using PraxisChessEngine.Business.Protocols;
 using PraxisChessEngine.Business.Search;
+using System;
 
 namespace PraxisChessEngine.Business;
 
@@ -16,9 +15,8 @@ public static class DependencyInjection
         services.AddSingleton<MoveGenerator>();
         services.AddSingleton<PositionEvaluator>();
         services.AddSingleton<ZobristHasher>();
-        services.AddSingleton<ISearchService, AlphaBetaSearchService>();
+        services.AddTransient<ISearchService, AlphaBetaSearchService>();
         services.AddTransient<IEngineSession, EngineSession>();
-        services.AddSingleton<IEngineProtocolFactory, UciProtocolFactory>();
 
         return services;
     }

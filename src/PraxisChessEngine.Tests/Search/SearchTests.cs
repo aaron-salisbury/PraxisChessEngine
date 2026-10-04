@@ -20,7 +20,7 @@ public sealed class SearchTests
         Assert.IsNotNull(result.BestMove);
         Position after = position.Clone();
         after.MakeMove(result.BestMove.Value);
-        Assert.AreEqual(0, generator.GenerateLegalMoves(after).Count);
+        Assert.IsEmpty(generator.GenerateLegalMoves(after));
         Assert.IsTrue(generator.IsInCheck(after, after.SideToMove));
     }
 }

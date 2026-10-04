@@ -1,7 +1,9 @@
-using System;
 using Microsoft.Extensions.DependencyInjection;
 using PraxisChessEngine.Business.Engine;
+using PraxisChessEngine.Business.Protocols;
+using PraxisChessEngine.Integrations.Protocols;
 using PraxisChessEngine.Integrations.Tablebases;
+using System;
 
 namespace PraxisChessEngine.Integrations;
 
@@ -17,6 +19,7 @@ public static class DependencyInjection
             client.Timeout = TimeSpan.FromSeconds(2);
         });
 
+        services.AddSingleton<IEngineProtocolFactory, UciProtocolFactory>();
         services.AddSingleton<ITablebaseProvider, LichessTablebaseProvider>();
 
         return services;

@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PraxisChessEngine.Business.Chess;
@@ -14,7 +15,7 @@ public sealed class MoveGeneratorTests
     {
         Position position = Position.FromFen(Position.START_FEN);
 
-        Assert.AreEqual(20, _generator.GenerateLegalMoves(position).Count);
+        Assert.HasCount(20, _generator.GenerateLegalMoves(position));
     }
 
     [TestMethod]
