@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using PraxisChessEngine.Business.Diagnostics;
 using PraxisChessEngine.Business.Engine;
 using PraxisChessEngine.Business.Protocols;
 using System;
@@ -18,7 +19,8 @@ public class Program
         {
             IEngineSession session = serviceProvider.GetRequiredService<IEngineSession>();
             IEngineProtocolFactory protocolFactory = serviceProvider.GetRequiredService<IEngineProtocolFactory>();
-            IEngineProtocol protocol = protocolFactory.Create(session, GetEngineIdentity());
+            IDiagnosticLogger logger = serviceProvider.GetRequiredService<IDiagnosticLogger>();
+            IEngineProtocol protocol = protocolFactory.Create(session, GetEngineIdentity(), logger);
 
             await protocol.RunAsync(Console.In, Console.Out, CancellationToken.None);
             return 0;
