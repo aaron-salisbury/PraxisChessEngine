@@ -1,17 +1,22 @@
 using Microsoft.Extensions.DependencyInjection;
-using System;
+using PraxisChessEngine.Business.Engine;
+using PraxisChessEngine.Integrations.Tablebases;
 
 namespace PraxisChessEngine.Integrations;
 
 public static class DependencyInjection
 {
-    /// <summary>
-    /// Register internal integrations-tier services.
-    /// </summary>
-    /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection RegisterInternalIntegrationsServices(this IServiceCollection services)
     {
         ArgumentNullException.ThrowIfNull(services);
+
+        services.AddHttpClient("LichessTablebase", client =>
+        {
+            client.BaseAddress = new Uri("https://tablebase.lichess.ovh/");
+            client.Timeout = TimeSpan.FromSeconds(2);
+        });
+
+        services.AddSingleton<ITablebaseProvider, LichessTablebaseProvider>();
 
         return services;
     }

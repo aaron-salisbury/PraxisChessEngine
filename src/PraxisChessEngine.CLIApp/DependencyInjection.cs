@@ -11,8 +11,6 @@ internal static class DependencyInjection
     {
         IServiceCollection services = new ServiceCollection();
 
-        services.AddHttpClient();
-
         services.RegisterInternalIntegrationsServices()
             .RegisterInternalDataServices()
             .RegisterInternalBusinessServices();
