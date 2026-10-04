@@ -97,7 +97,7 @@ internal sealed class AlphaBetaSearchService : ISearchService
         }
 
         ulong hash = _hasher.Hash(position);
-        if (_transpositions.TryGetValue(hash, out TranspositionEntry entry) && entry.Depth >= depth)
+        if (_transpositions.TryGetValue(hash, out TranspositionEntry? entry) && entry.Depth >= depth)
         {
             return entry.Score;
         }
