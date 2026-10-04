@@ -1,5 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PraxisChessEngine.Business.Chess;
+using PraxisChessEngine.Business.Diagnostics;
 using PraxisChessEngine.Business.Engine;
 using PraxisChessEngine.Business.Protocols;
 using PraxisChessEngine.Business.Search;
@@ -20,7 +21,7 @@ public sealed class UciProtocolTests
     {
         FakeSession session = new();
         EngineIdentity identity = new("Praxis Chess Engine", "Aaron Salisbury", "0.2.0+abcdef");
-        UciProtocol protocol = new(session, identity);
+        UciProtocol protocol = new(session, identity, new NullDiagnosticLogger());
         using StringReader input = new("uci\nisready\nquit\n");
         using StringWriter output = new();
 
@@ -38,7 +39,7 @@ public sealed class UciProtocolTests
     {
         FakeSession session = new();
         EngineIdentity identity = new("Praxis Chess Engine", "Aaron Salisbury", "0.2.0+abcdef");
-        UciProtocol protocol = new(session, identity);
+        UciProtocol protocol = new(session, identity, new NullDiagnosticLogger());
         using StringReader input = new("position startpos moves e2e4 e7e5\nquit\n");
         using StringWriter output = new();
 
