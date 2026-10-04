@@ -251,8 +251,8 @@ DTOs should:
 -   Be POCOs.
 -   Generally be C# records.
 -   Contain data rather than complex behavior.
--   Represent the contract Helm intends to expose rather than blindly
-    mirror persistence or provider representations.
+-   Represent intended contract exposure rather than blindly mirror 
+persistence or provider representations.
 
 Example:
 
@@ -281,8 +281,8 @@ representations. Prefer focused business services/processes for
 non-trivial behavior rather than automatically placing complex behavior
 on the objects themselves.
 
-Useful DDD ideas may be adopted when they solve a concrete problem, but
-Helm does not require DDD terminology or rich domain objects by default.
+Useful DDD ideas may be adopted when they solve a concrete problem, but 
+DDD terminology or rich domain objects are not required by default.
 
 ### Models
 
