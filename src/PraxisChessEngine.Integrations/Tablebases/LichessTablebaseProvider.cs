@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -52,6 +53,10 @@ internal sealed class LichessTablebaseProvider : ITablebaseProvider
             return new TablebaseProbeResult(TablebaseProbeStatus.Unavailable);
         }
         catch (FormatException)
+        {
+            return new TablebaseProbeResult(TablebaseProbeStatus.InvalidResponse);
+        }
+        catch (JsonException)
         {
             return new TablebaseProbeResult(TablebaseProbeStatus.InvalidResponse);
         }

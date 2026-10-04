@@ -50,8 +50,10 @@ internal sealed class EngineSession : IEngineSession
 
     public async Task<SearchResult> SearchAsync(SearchLimits limits, CancellationToken cancellationToken)
     {
+        IReadOnlyList<Move> legalMoves = _moveGenerator.GenerateLegalMoves(Position);
+
         Move? bookMove = _openingBook.FindMove(Position);
-        if (bookMove.HasValue)
+        if (bookMove.HasValue && legalMoves.Contains(bookMove.Value))
         {
             return new SearchResult(bookMove, 0, 0, 0, [bookMove.Value]);
         }
@@ -64,7 +66,9 @@ internal sealed class EngineSession : IEngineSession
             }
 
             TablebaseProbeResult result = await provider.ProbeAsync(Position, cancellationToken);
-            if (result.Status == TablebaseProbeStatus.Success && result.BestMove.HasValue)
+            if (result.Status == TablebaseProbeStatus.Success
+                && result.BestMove.HasValue
+                && legalMoves.Contains(result.BestMove.Value))
             {
                 return new SearchResult(result.BestMove, 0, 0, 0, [result.BestMove.Value]);
             }

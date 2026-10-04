@@ -129,26 +129,75 @@ internal sealed class UciProtocol : IEngineProtocol
         }, CancellationToken.None);
     }
 
-    private static SearchLimits ParseLimits(string command)
+    private SearchLimits ParseLimits(string command)
     {
         string[] parts = command.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         int? depth = null;
         TimeSpan? moveTime = null;
         long? nodes = null;
+        int? whiteTime = null;
+        int? blackTime = null;
+        int whiteIncrement = 0;
+        int blackIncrement = 0;
+        int movesToGo = 30;
 
         for (int i = 1; i + 1 < parts.Length; i++)
         {
-            if (parts[i] == "depth" && int.TryParse(parts[++i], out int parsedDepth))
+            string name = parts[i];
+            string value = parts[i + 1];
+
+            if (name == "depth" && int.TryParse(value, out int parsedDepth))
             {
                 depth = parsedDepth;
+                i++;
             }
-            else if (parts[i] == "movetime" && int.TryParse(parts[++i], out int milliseconds))
+            else if (name == "movetime" && int.TryParse(value, out int milliseconds))
             {
-                moveTime = TimeSpan.FromMilliseconds(milliseconds);
+                moveTime = TimeSpan.FromMilliseconds(Math.Max(1, milliseconds));
+                i++;
             }
-            else if (parts[i] == "nodes" && long.TryParse(parts[++i], out long parsedNodes))
+            else if (name == "nodes" && long.TryParse(value, out long parsedNodes))
             {
                 nodes = parsedNodes;
+                i++;
+            }
+            else if (name == "wtime" && int.TryParse(value, out int parsedWhiteTime))
+            {
+                whiteTime = parsedWhiteTime;
+                i++;
+            }
+            else if (name == "btime" && int.TryParse(value, out int parsedBlackTime))
+            {
+                blackTime = parsedBlackTime;
+                i++;
+            }
+            else if (name == "winc" && int.TryParse(value, out int parsedWhiteIncrement))
+            {
+                whiteIncrement = parsedWhiteIncrement;
+                i++;
+            }
+            else if (name == "binc" && int.TryParse(value, out int parsedBlackIncrement))
+            {
+                blackIncrement = parsedBlackIncrement;
+                i++;
+            }
+            else if (name == "movestogo" && int.TryParse(value, out int parsedMovesToGo))
+            {
+                movesToGo = Math.Max(1, parsedMovesToGo);
+                i++;
+            }
+        }
+
+        if (!moveTime.HasValue)
+        {
+            int? remaining = _session.Position.SideToMove == PieceColor.White ? whiteTime : blackTime;
+            int increment = _session.Position.SideToMove == PieceColor.White ? whiteIncrement : blackIncrement;
+
+            if (remaining.HasValue)
+            {
+                int budget = Math.Max(1, remaining.Value / movesToGo + increment / 2);
+                int reserve = Math.Max(10, remaining.Value / 50);
+                moveTime = TimeSpan.FromMilliseconds(Math.Min(budget, Math.Max(1, remaining.Value - reserve)));
             }
         }
 

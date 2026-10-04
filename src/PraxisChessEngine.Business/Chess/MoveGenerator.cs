@@ -188,7 +188,10 @@ public sealed class MoveGenerator
         }
 
         char kingSide = color == PieceColor.White ? 'K' : 'k';
+        Piece kingSideRook = position[new Square(rank * 8 + 7)];
         if (position.CastlingRights.Contains(kingSide)
+            && kingSideRook.Type == PieceType.Rook
+            && kingSideRook.Color == color
             && position[new Square(rank * 8 + 5)].IsEmpty
             && position[new Square(rank * 8 + 6)].IsEmpty
             && !IsSquareAttacked(position, new Square(rank * 8 + 5), enemy)
@@ -198,7 +201,10 @@ public sealed class MoveGenerator
         }
 
         char queenSide = color == PieceColor.White ? 'Q' : 'q';
+        Piece queenSideRook = position[new Square(rank * 8)];
         if (position.CastlingRights.Contains(queenSide)
+            && queenSideRook.Type == PieceType.Rook
+            && queenSideRook.Color == color
             && position[new Square(rank * 8 + 1)].IsEmpty
             && position[new Square(rank * 8 + 2)].IsEmpty
             && position[new Square(rank * 8 + 3)].IsEmpty

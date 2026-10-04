@@ -1,9 +1,9 @@
-# Modernization Roadmap
+| 14 |  | Planned || 13 |  | Planned || 12 |  | Planned || 11 |  | Planned || 10 |  | Complete || 9 |  | Complete || 8 |  | Complete || 7 |  | Complete || 6 |  | Complete || 5 |  | Complete || 4 |  | Complete || 3 |  | Complete || 2 |  | Complete || 1 |  | Complete |# Modernization Roadmap
 
 This roadmap is temporary planning for the `modernize` branch. The legacy solution remains available as reference while the replacement engine is developed under `src`.
 
-| Step | Goal | Summary |
-| --- | --- | --- |
+| Step | Goal | Status | Summary |
+| --- | --- | --- | --- |
 | 1 | Establish chess core | Define compact engine-owned representations for squares, pieces, colors, moves, positions, castling rights, en passant state, clocks, and FEN import/export. Keep the core independent of UCI, persistence, HTTP, and UI concerns. |
 | 2 | Implement legal move generation | Build pseudo-legal move generation, attack detection, make/unmake move support, and legal-move filtering. Cover castling, promotion, en passant, check, checkmate, stalemate, repetition-relevant state, and the fifty-move clock with strong unit tests and perft validation. |
 | 3 | Add search foundation | Implement a deterministic negamax/alpha-beta search over legal positions with iterative deepening, quiescence search, terminal scoring, cancellation, and search limits. Return a structured search result rather than protocol text. |
