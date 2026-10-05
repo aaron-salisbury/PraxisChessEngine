@@ -1,9 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using PraxisChessEngine.Business;
 using PraxisChessEngine.Business.Diagnostics;
+using PraxisChessEngine.CLIApp.Diagnostics;
 using PraxisChessEngine.Data;
 using PraxisChessEngine.Integrations;
-using PraxisChessEngine.CLIApp.Diagnostics;
 using System;
 using System.IO;
 
