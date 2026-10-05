@@ -13,4 +13,5 @@ This project uses [Semantic Versioning](https://semver.org/).
 
   - Replace opening-book lookup by FEN string an established opening-book format such as [Polyglot](https://hgm.nubati.net/book_format.html).
   - Expand opening repertoire to thousands, or millions of known positions. With positions having several candidate moves, perhaps with weights.
+  - Add repeatable benchmarks and tactical/position suites. Improve evaluation, pruning, extensions/reductions, time management, and search efficiency based on measured results.
   - Implement additional communication protocol. Right now, only UCI has been started, but developing a [CECP](https://www.chessprogramming.org/Chess_Engine_Communication_Protocol) (Winboard) protocol would make the engine compatible with more interfaces.
