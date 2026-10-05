@@ -48,14 +48,50 @@ public sealed class UciProtocolTests
         CollectionAssert.AreEqual(new[] { "e2e4", "e7e5" }, session.Moves.Select(move => move.ToString()).ToArray());
     }
 
+
+    [TestMethod]
+    public async Task Go_WithClockLimits_ReturnsBestMove()
+    {
+        FakeSession session = new();
+        EngineIdentity identity = new("Praxis Chess Engine", "Aaron Salisbury", "0.2.0");
+        UciProtocol protocol = new(session, identity, new NullDiagnosticLogger());
+        using StringReader input = new("position startpos\ngo wtime 1000 btime 1000 winc 0 binc 0\nquit\n");
+        using StringWriter output = new();
+
+        await protocol.RunAsync(input, output, CancellationToken.None);
+
+        StringAssert.Contains(output.ToString(), "bestmove e2e4");
+        Assert.IsNotNull(session.LastLimits);
+        Assert.IsNotNull(session.LastLimits.MoveTime);
+    }
+
+    [TestMethod]
+    public async Task NewGame_ResetsSession()
+    {
+        FakeSession session = new();
+        EngineIdentity identity = new("Praxis Chess Engine", "Aaron Salisbury", "0.2.0");
+        UciProtocol protocol = new(session, identity, new NullDiagnosticLogger());
+        using StringReader input = new("ucinewgame\nquit\n");
+        using StringWriter output = new();
+
+        await protocol.RunAsync(input, output, CancellationToken.None);
+
+        Assert.IsTrue(session.NewGameWasCalled);
+    }
+
     private sealed class FakeSession : IEngineSession
     {
         public Position Position { get; } = Position.FromFen(Position.START_FEN);
 
         public List<Move> Moves { get; } = [];
 
+        public SearchLimits? LastLimits { get; private set; }
+
+        public bool NewGameWasCalled { get; private set; }
+
         public void NewGame()
         {
+            NewGameWasCalled = true;
         }
 
         public void SetPosition(string? fen, IEnumerable<Move> moves)
@@ -66,6 +102,7 @@ public sealed class UciProtocolTests
 
         public Task<SearchResult> SearchAsync(SearchLimits limits, CancellationToken cancellationToken)
         {
+            LastLimits = limits;
             return Task.FromResult(new SearchResult(Move.Parse("e2e4"), 0, 1, 1, [Move.Parse("e2e4")]));
         }
     }
