@@ -47,5 +47,6 @@ This project uses [Semantic Versioning](https://semver.org/).
 - Expand the opening repertoire to a substantial collection of known positions with multiple weighted candidate moves.
 - Add repeatable benchmarks and tactical/position suites, then improve evaluation, pruning, extensions/reductions, time management, and search efficiency based on measured results.
 - Add full draw handling for threefold repetition and insufficient material.
+- Currently, evaluation is intentionally basic. Move search clones positions rather than make/unmake, and UCI search information is final-result rather than live iterative output
 - Consider local Syzygy tablebase support as an offline alternative to the Lichess provider.
 - Add another communication protocol, such as [CECP](https://www.chessprogramming.org/Chess_Engine_Communication_Protocol) (WinBoard), if compatibility with additional interfaces warrants it.
