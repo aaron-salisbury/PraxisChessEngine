@@ -51,7 +51,7 @@ jobs:
       - name: Build Cute Chess CLI
         run: |
           sudo apt-get update
-          sudo apt-get install --yes cmake ninja-build qt6-base-dev qt6-svg-dev
+          sudo apt-get install --yes cmake ninja-build qt6-base-dev qt6-svg-dev qt6-5compat-dev
           git clone --branch v1.5.1 --depth 1 https://github.com/cutechess/cutechess.git "$RUNNER_TEMP/cutechess"
           cmake -S "$RUNNER_TEMP/cutechess" -B "$RUNNER_TEMP/cutechess/build" -G Ninja -DCMAKE_BUILD_TYPE=Release
           cmake --build "$RUNNER_TEMP/cutechess/build" --target cutechess-cli
