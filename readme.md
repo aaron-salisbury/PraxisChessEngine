@@ -1,8 +1,6 @@
 # Praxis Chess Engine
 
-Praxis is a hobbyist chess engine written in C# and built on .NET 10. It runs as a command-line engine for chess interfaces such as [Arena](http://www.playwitharena.de/) and communicates using the Universal Chess Interface (UCI) protocol.
-
-The current engine is a cross-platform rewrite of the original Windows/.NET Framework Praxis engine, with a smaller architecture centered on the chess model and search rather than the GUI or protocol.
+Praxis is a hobbyist chess engine written in C# and built on .NET 10. It runs as a command-line engine for chess interfaces such as [Arena](http://www.playwitharena.de/) and communicates using the Universal Chess Interface (UCI) protocol. Published as self-contained and ahead-of-time (AOT) compiled to native code.
 
 ## Key Features
 
