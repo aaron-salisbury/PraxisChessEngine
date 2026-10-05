@@ -1,0 +1,82 @@
+name: Build and Test
+
+on:
+  push:
+    branches:
+      - modernize
+  pull_request:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore src/PraxisChessEngine.slnx
+
+      - name: Build
+        run: dotnet build src/PraxisChessEngine.slnx --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test src/PraxisChessEngine.slnx --configuration Release --no-build
+
+  uci-smoke:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+
+      - name: Install Cute Chess build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes cmake ninja-build qt6-base-dev qt6-svg-dev qt6-5compat-dev
+
+      - name: Run UCI smoke test
+        run: bash build/smoke-test.sh
+
+
+  native-aot-publish:
+    name: Native AOT (${{ matrix.runtime }})
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            runtime: win-x64
+          - os: ubuntu-latest
+            runtime: linux-x64
+          - os: macos-15-intel
+            runtime: osx-x64
+          - os: macos-latest
+            runtime: osx-arm64
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+
+      - name: Publish Native AOT
+        run: dotnet publish src/PraxisChessEngine.CLIApp/PraxisChessEngine.CLIApp.csproj --configuration Release --runtime ${{ matrix.runtime }} --self-contained true --output artifacts/praxis-${{ matrix.runtime }}

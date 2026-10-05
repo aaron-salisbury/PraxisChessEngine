@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="PraxisChessEngine.Business/PraxisChessEngine.Business.csproj" />
+  <Project Path="PraxisChessEngine.Data/PraxisChessEngine.Data.csproj" />
+  <Project Path="PraxisChessEngine.Integrations/PraxisChessEngine.Integrations.csproj" />
+  <Project Path="PraxisChessEngine.CLIApp/PraxisChessEngine.CLIApp.csproj" />
+  <Project Path="PraxisChessEngine.Tests/PraxisChessEngine.Tests.csproj" />
+</Solution>

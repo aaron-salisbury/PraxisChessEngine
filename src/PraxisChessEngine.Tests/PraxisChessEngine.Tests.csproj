@@ -1,0 +1,29 @@
+﻿<Project Sdk="MSTest.Sdk/4.0.2">
+
+  <PropertyGroup>
+	  <Description>Unit tests for the Praxis Chess Engine.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PraxisChessEngine.Business\PraxisChessEngine.Business.csproj" />
+    <ProjectReference Include="..\PraxisChessEngine.Data\PraxisChessEngine.Data.csproj" />
+    <ProjectReference Include="..\PraxisChessEngine.Integrations\PraxisChessEngine.Integrations.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Microsoft.Testing.Extensions.CodeCoverage" Version="18.11.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Microsoft.Testing.Extensions.TrxReport" Version="2.4.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="MSTest.TestAdapter" Version="4.4.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="MSTest.TestFramework" Version="4.4.1" />
+  </ItemGroup>
+
+</Project>

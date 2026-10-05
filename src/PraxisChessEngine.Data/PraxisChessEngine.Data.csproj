@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	  <Description>Data access and persistence tier of Praxis Chess Engine.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>PraxisChessEngine.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+	
+  <ItemGroup>
+    <ProjectReference Include="..\PraxisChessEngine.Business\PraxisChessEngine.Business.csproj" />
+  </ItemGroup>
+
+</Project>
