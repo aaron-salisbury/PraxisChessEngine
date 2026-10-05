@@ -52,3 +52,31 @@ jobs:
 
       - name: Run UCI smoke test
         run: bash build/smoke-test.sh
+
+
+  native-aot-publish:
+    name: Native AOT (${{ matrix.runtime }})
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            runtime: win-x64
+          - os: ubuntu-latest
+            runtime: linux-x64
+          - os: macos-15-intel
+            runtime: osx-x64
+          - os: macos-latest
+            runtime: osx-arm64
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+
+      - name: Publish Native AOT
+        run: dotnet publish src/PraxisChessEngine.CLIApp/PraxisChessEngine.CLIApp.csproj --configuration Release --runtime ${{ matrix.runtime }} --self-contained true --output artifacts/praxis-${{ matrix.runtime }}
