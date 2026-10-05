@@ -19,6 +19,7 @@ internal sealed class UciProtocol : IEngineProtocol
     private readonly IDiagnosticLogger _logger;
     private CancellationTokenSource? _searchCancellation;
     private Task? _searchTask;
+    private bool _debugEnabled;
 
     public UciProtocol(IEngineSession session, EngineIdentity identity, IDiagnosticLogger logger)
     {
@@ -44,6 +45,18 @@ internal sealed class UciProtocol : IEngineProtocol
                 await WriteAsync(output, $"id name {_identity.DisplayName}");
                 await WriteAsync(output, $"id author {_identity.Author}");
                 await WriteAsync(output, "uciok");
+            }
+            else if (command.StartsWith("debug ", StringComparison.Ordinal))
+            {
+                _debugEnabled = command == "debug on";
+                _logger.Log($"UCI debug {(_debugEnabled ? "enabled" : "disabled")}");
+            }
+            else if (command.StartsWith("setoption ", StringComparison.Ordinal))
+            {
+                if (_debugEnabled)
+                {
+                    _logger.Log($"Ignored unsupported UCI option: {command}");
+                }
             }
             else if (command == "isready")
             {
@@ -140,12 +153,27 @@ internal sealed class UciProtocol : IEngineProtocol
 
                 string bestMoveText = bestMove?.ToString() ?? "0000";
                 _logger.Log($"Search result: bestmove {bestMoveText}; depth {result.Depth}; score {result.Score}; nodes {result.Nodes}");
+                await WriteSearchInfoAsync(output, result);
                 await WriteAsync(output, $"bestmove {bestMoveText}");
             }
             catch (OperationCanceledException)
             {
             }
         }, CancellationToken.None);
+    }
+
+    private async Task WriteSearchInfoAsync(TextWriter output, SearchResult result)
+    {
+        if (result.Depth <= 0 && result.Nodes <= 0)
+        {
+            return;
+        }
+
+        string principalVariation = result.PrincipalVariation.Count == 0
+            ? string.Empty
+            : $" pv {string.Join(' ', result.PrincipalVariation)}";
+
+        await WriteAsync(output, $"info depth {result.Depth} score cp {result.Score} nodes {result.Nodes}{principalVariation}");
     }
 
     private SearchLimits ParseLimits(string command)
