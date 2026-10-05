@@ -4,6 +4,7 @@ using PraxisChessEngine.Business.Diagnostics;
 using PraxisChessEngine.Business.Engine;
 using PraxisChessEngine.Business.Search;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -58,6 +59,42 @@ public sealed class EngineSessionTests
         Assert.IsFalse(search.WasCalled);
     }
 
+
+    [TestMethod]
+    public async Task SearchAsync_TablebaseTimeoutFallsBackToSearchAndLogs()
+    {
+        FakeSearch search = new();
+        SlowTablebase tablebase = new();
+        RecordingLogger logger = new();
+        EngineSession session = new(search, new MoveGenerator(), new FakeOpeningBook(null), [tablebase], logger);
+        session.SetPosition("7k/8/8/8/8/8/8/4K3 w - - 0 1", []);
+
+        SearchResult result = await session.SearchAsync(new SearchLimits(null, TimeSpan.FromSeconds(2), null), CancellationToken.None);
+
+        Assert.AreEqual(Move.Parse("e1e2"), result.BestMove);
+        Assert.IsTrue(tablebase.WasCanceled);
+        Assert.IsTrue(search.WasCalled);
+        Assert.IsTrue(logger.Messages.Exists(message => message.Contains("Tablebase probe started", StringComparison.Ordinal)));
+        Assert.IsTrue(logger.Messages.Exists(message => message.Contains("Tablebase probe timed out", StringComparison.Ordinal)));
+    }
+
+    [TestMethod]
+    public async Task SearchAsync_MoveDeadlineIncludesTablebaseProbe()
+    {
+        FakeSearch search = new();
+        SlowTablebase tablebase = new();
+        RecordingLogger logger = new();
+        EngineSession session = new(search, new MoveGenerator(), new FakeOpeningBook(null), [tablebase], logger);
+        session.SetPosition("7k/8/8/8/8/8/8/4K3 w - - 0 1", []);
+
+        SearchResult result = await session.SearchAsync(new SearchLimits(null, TimeSpan.FromMilliseconds(50), null), CancellationToken.None);
+
+        Assert.IsNotNull(result.BestMove);
+        Assert.IsTrue(tablebase.WasCanceled);
+        Assert.IsFalse(search.WasCalled);
+        Assert.IsTrue(logger.Messages.Exists(message => message.Contains("Move deadline reached", StringComparison.Ordinal)));
+    }
+
     private sealed class FakeOpeningBook : IOpeningBook
     {
         private readonly Move? _move;
@@ -94,6 +131,43 @@ public sealed class EngineSessionTests
         }
     }
 
+
+    private sealed class SlowTablebase : ITablebaseProvider
+    {
+        public int MaximumPieceCount => 7;
+
+        public bool WasCanceled { get; private set; }
+
+        public async Task<TablebaseProbeResult> ProbeAsync(Position position, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken);
+                return new TablebaseProbeResult(TablebaseProbeStatus.Unavailable);
+            }
+            catch (OperationCanceledException)
+            {
+                WasCanceled = true;
+                throw;
+            }
+        }
+    }
+
+    private sealed class RecordingLogger : IDiagnosticLogger
+    {
+        public List<string> Messages { get; } = [];
+
+        public void Log(string message)
+        {
+            Messages.Add(message);
+        }
+
+        public void Log(Exception exception, string message)
+        {
+            Messages.Add(message);
+        }
+    }
+
     private sealed class FakeSearch : ISearchService
     {
         public bool WasCalled { get; private set; }
@@ -101,7 +175,7 @@ public sealed class EngineSessionTests
         public SearchResult Search(Position position, SearchLimits limits, CancellationToken cancellationToken)
         {
             WasCalled = true;
-            Move move = Move.Parse("g1f3");
+            Move move = Move.Parse("e1e2");
             return new SearchResult(move, 0, 1, 1, [move]);
         }
     }
