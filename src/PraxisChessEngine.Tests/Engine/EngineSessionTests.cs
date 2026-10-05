@@ -95,6 +95,20 @@ public sealed class EngineSessionTests
         Assert.IsTrue(logger.Messages.Exists(message => message.Contains("Move deadline", StringComparison.Ordinal)));
     }
 
+    [TestMethod]
+    public async Task SearchAsync_SearchWithoutBestMoveReturnsLegalFallback()
+    {
+        EmptySearch search = new();
+        RecordingLogger logger = new();
+        EngineSession session = new(search, new MoveGenerator(), new FakeOpeningBook(null), [], logger);
+
+        SearchResult result = await session.SearchAsync(new SearchLimits(1), CancellationToken.None);
+
+        Assert.IsNotNull(result.BestMove);
+        Assert.IsTrue(new MoveGenerator().GenerateLegalMoves(Position.FromFen(Position.START_FEN)).Contains(result.BestMove.Value));
+        Assert.IsTrue(logger.Messages.Exists(message => message.Contains("without a legal best move", StringComparison.Ordinal)));
+    }
+
     private sealed class FakeOpeningBook : IOpeningBook
     {
         private readonly Move? _move;
@@ -165,6 +179,14 @@ public sealed class EngineSessionTests
         public void Log(Exception exception, string message)
         {
             Messages.Add(message);
+        }
+    }
+
+    private sealed class EmptySearch : ISearchService
+    {
+        public SearchResult Search(Position position, SearchLimits limits, CancellationToken cancellationToken)
+        {
+            return new SearchResult(null, 0, 0, 0, []);
         }
     }
 
