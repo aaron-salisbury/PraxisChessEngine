@@ -45,27 +45,10 @@ jobs:
         with:
           global-json-file: global.json
 
-      - name: Publish Praxis
-        run: dotnet publish src/PraxisChessEngine.CLIApp/PraxisChessEngine.CLIApp.csproj --configuration Release --output artifacts/praxis
-
-      - name: Build Cute Chess CLI
+      - name: Install Cute Chess build dependencies
         run: |
           sudo apt-get update
           sudo apt-get install --yes cmake ninja-build qt6-base-dev qt6-svg-dev qt6-5compat-dev
-          git clone --branch v1.5.1 --depth 1 https://github.com/cutechess/cutechess.git "$RUNNER_TEMP/cutechess"
-          cmake -S "$RUNNER_TEMP/cutechess" -B "$RUNNER_TEMP/cutechess/build" -G Ninja -DCMAKE_BUILD_TYPE=Release
-          cmake --build "$RUNNER_TEMP/cutechess/build" --target cutechess-cli
 
-      - name: Run UCI self-play smoke test
-        run: |
-          mkdir -p artifacts/smoke
-          CUTECHESS_CLI="$(find "$RUNNER_TEMP/cutechess/build" -type f -name cutechess-cli -perm -111 | head -n 1)"
-          test -n "$CUTECHESS_CLI"
-          "$CUTECHESS_CLI" \
-            -engine name=PraxisWhite cmd="$GITHUB_WORKSPACE/artifacts/praxis/PraxisChessEngine" proto=uci \
-            -engine name=PraxisBlack cmd="$GITHUB_WORKSPACE/artifacts/praxis/PraxisChessEngine" proto=uci \
-            -each tc=10+0.1 \
-            -rounds 2 \
-            -repeat \
-            -recover \
-            -pgnout artifacts/smoke/praxis-smoke.pgn
+      - name: Run UCI smoke test
+        run: bash build/smoke-test.sh
