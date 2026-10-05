@@ -5,6 +5,7 @@ using PraxisChessEngine.Business.Engine;
 using PraxisChessEngine.Business.Protocols;
 using PraxisChessEngine.Business.Search;
 using PraxisChessEngine.Integrations.Protocols;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -104,7 +105,7 @@ public sealed class UciProtocolTests
 
         string text = output.ToString();
         StringAssert.Contains(text, "info depth 1 score cp 0 nodes 1 pv e2e4");
-        Assert.IsTrue(text.IndexOf("info depth", System.StringComparison.Ordinal) < text.IndexOf("bestmove e2e4", System.StringComparison.Ordinal));
+        Assert.IsLessThan(text.IndexOf("info depth", StringComparison.Ordinal), text.IndexOf("bestmove e2e4", StringComparison.Ordinal));
     }
 
     [TestMethod]
