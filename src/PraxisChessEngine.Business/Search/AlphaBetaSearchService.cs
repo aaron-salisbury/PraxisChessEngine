@@ -99,9 +99,27 @@ internal sealed class AlphaBetaSearchService : ISearchService
         ulong hash = _hasher.Hash(position);
         if (_transpositions.TryGetValue(hash, out TranspositionEntry? entry) && entry.Depth >= depth)
         {
-            return entry.Score;
+            if (entry.Bound == TranspositionBound.Exact)
+            {
+                return entry.Score;
+            }
+
+            if (entry.Bound == TranspositionBound.Lower)
+            {
+                alpha = Math.Max(alpha, entry.Score);
+            }
+            else
+            {
+                beta = Math.Min(beta, entry.Score);
+            }
+
+            if (alpha >= beta)
+            {
+                return entry.Score;
+            }
         }
 
+        int originalAlpha = alpha;
         int best = -MATE_SCORE;
         Move? bestMove = null;
         List<Move> ordered = OrderMoves(position, legalMoves, entry?.BestMove, ply);
@@ -140,7 +158,12 @@ internal sealed class AlphaBetaSearchService : ISearchService
             }
         }
 
-        _transpositions[hash] = new TranspositionEntry(depth, best, bestMove);
+        TranspositionBound bound = best <= originalAlpha
+            ? TranspositionBound.Upper
+            : best >= beta
+                ? TranspositionBound.Lower
+                : TranspositionBound.Exact;
+        _transpositions[hash] = new TranspositionEntry(depth, best, bestMove, bound);
         return best;
     }
 
@@ -202,7 +225,14 @@ internal sealed class AlphaBetaSearchService : ISearchService
         }
     }
 
-    private sealed record TranspositionEntry(int Depth, int Score, Move? BestMove);
+    private sealed record TranspositionEntry(int Depth, int Score, Move? BestMove, TranspositionBound Bound);
+
+    private enum TranspositionBound
+    {
+        Exact,
+        Lower,
+        Upper
+    }
 
     private sealed class SearchStoppedException : Exception;
 }
