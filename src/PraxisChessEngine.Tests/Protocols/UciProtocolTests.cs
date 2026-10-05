@@ -105,7 +105,7 @@ public sealed class UciProtocolTests
 
         string text = output.ToString();
         StringAssert.Contains(text, "info depth 1 score cp 0 nodes 1 pv e2e4");
-        Assert.IsLessThan(text.IndexOf("info depth", StringComparison.Ordinal), text.IndexOf("bestmove e2e4", StringComparison.Ordinal));
+        Assert.IsLessThan(text.IndexOf("bestmove e2e4", StringComparison.Ordinal), text.IndexOf("info depth", StringComparison.Ordinal));
     }
 
     [TestMethod]
