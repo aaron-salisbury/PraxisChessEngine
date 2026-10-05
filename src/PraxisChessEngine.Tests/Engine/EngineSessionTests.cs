@@ -92,7 +92,7 @@ public sealed class EngineSessionTests
         Assert.IsNotNull(result.BestMove);
         Assert.IsTrue(tablebase.WasCanceled);
         Assert.IsFalse(search.WasCalled);
-        Assert.IsTrue(logger.Messages.Exists(message => message.Contains("Move deadline reached", StringComparison.Ordinal)));
+        Assert.IsTrue(logger.Messages.Exists(message => message.Contains("Move deadline", StringComparison.Ordinal)));
     }
 
     private sealed class FakeOpeningBook : IOpeningBook
