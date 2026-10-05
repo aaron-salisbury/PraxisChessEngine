@@ -29,10 +29,10 @@ public sealed class UciProtocolTests
         await protocol.RunAsync(input, output, CancellationToken.None);
 
         string text = output.ToString();
-        StringAssert.Contains(text, "id name Praxis Chess Engine 0.2.0");
-        StringAssert.Contains(text, "id author Aaron Salisbury");
-        StringAssert.Contains(text, "uciok");
-        StringAssert.Contains(text, "readyok");
+        Assert.Contains("id name Praxis Chess Engine 0.2.0", text);
+        Assert.Contains("id author Aaron Salisbury", text);
+        Assert.Contains("uciok", text);
+        Assert.Contains("readyok", text);
     }
 
     [TestMethod]
@@ -61,7 +61,7 @@ public sealed class UciProtocolTests
 
         await protocol.RunAsync(input, output, CancellationToken.None);
 
-        StringAssert.Contains(output.ToString(), "bestmove e2e4");
+        Assert.Contains("bestmove e2e4", output.ToString());
         Assert.IsNotNull(session.LastLimits);
         Assert.IsNotNull(session.LastLimits.MoveTime);
     }
@@ -104,7 +104,7 @@ public sealed class UciProtocolTests
         await protocol.RunAsync(input, output, CancellationToken.None);
 
         string text = output.ToString();
-        StringAssert.Contains(text, "info depth 1 score cp 0 nodes 1 pv e2e4");
+        Assert.Contains("info depth 1 score cp 0 nodes 1 pv e2e4", text);
         Assert.IsLessThan(text.IndexOf("bestmove e2e4", StringComparison.Ordinal), text.IndexOf("info depth", StringComparison.Ordinal));
     }
 

@@ -205,14 +205,13 @@ internal sealed class AlphaBetaSearchService : ISearchService
         Move? firstKiller = ply < _killers.GetLength(0) ? _killers[ply, 0] : null;
         Move? secondKiller = ply < _killers.GetLength(0) ? _killers[ply, 1] : null;
 
-        return moves
+        return [.. moves
             .OrderByDescending(move => preferred.HasValue && move == preferred.Value)
             .ThenByDescending(move => !position[move.To].IsEmpty)
             .ThenByDescending(move => move.Promotion != PieceType.None)
             .ThenByDescending(move => firstKiller.HasValue && move == firstKiller.Value)
             .ThenByDescending(move => secondKiller.HasValue && move == secondKiller.Value)
-            .ThenByDescending(move => _history.GetValueOrDefault(move))
-            .ToList();
+            .ThenByDescending(move => _history.GetValueOrDefault(move))];
     }
 
     private void CheckStop()
