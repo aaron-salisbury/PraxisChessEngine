@@ -140,15 +140,15 @@ internal sealed class EngineSession : IEngineSession
         }
 
         SearchLimits searchLimits = new(limits.Depth, searchTime, limits.Nodes);
-        SearchResult result = await Task.Run(() => _searchService.Search(snapshot, searchLimits, effectiveCancellation), CancellationToken.None);
-        if (result.BestMove.HasValue && legalMoves.Contains(result.BestMove.Value))
+        SearchResult searchResult = await Task.Run(() => _searchService.Search(snapshot, searchLimits, effectiveCancellation), CancellationToken.None);
+        if (searchResult.BestMove.HasValue && legalMoves.Contains(searchResult.BestMove.Value))
         {
-            return result;
+            return searchResult;
         }
 
         Move fallback = legalMoves[0];
         _logger.Log($"Search completed without a legal best move; returning legal fallback {fallback}");
-        return new SearchResult(fallback, result.Score, result.Depth, result.Nodes, [fallback]);
+        return new SearchResult(fallback, searchResult.Score, searchResult.Depth, searchResult.Nodes, [fallback]);
     }
 
     private SearchResult DeadlineFallback(IReadOnlyList<Move> legalMoves)
