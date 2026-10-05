@@ -35,7 +35,7 @@ internal sealed class LichessTablebaseProvider : ITablebaseProvider
         {
             HttpClient client = _httpClientFactory.CreateClient(CLIENT_NAME);
             string fen = Uri.EscapeDataString(position.ToFen());
-            TablebaseResponse? response = await client.GetFromJsonAsync<TablebaseResponse>($"standard?fen={fen}", cancellationToken);
+            TablebaseResponse? response = await client.GetFromJsonAsync($"standard?fen={fen}", LichessTablebaseJsonContext.Default.TablebaseResponse, cancellationToken);
 
             if (response?.Moves is null || response.Moves.Count == 0 || string.IsNullOrWhiteSpace(response.Moves[0].Uci))
             {
@@ -66,3 +66,6 @@ internal sealed class LichessTablebaseProvider : ITablebaseProvider
 
     internal sealed record TablebaseMove([property: JsonPropertyName("uci")] string Uci);
 }
+
+[JsonSerializable(typeof(LichessTablebaseProvider.TablebaseResponse))]
+internal partial class LichessTablebaseJsonContext : JsonSerializerContext;

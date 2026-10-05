@@ -5,6 +5,7 @@ using PraxisChessEngine.Business.Engine;
 using PraxisChessEngine.Business.Protocols;
 using PraxisChessEngine.Business.Search;
 using PraxisChessEngine.Integrations.Protocols;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -77,6 +78,47 @@ public sealed class UciProtocolTests
         await protocol.RunAsync(input, output, CancellationToken.None);
 
         Assert.IsTrue(session.NewGameWasCalled);
+    }
+
+    [TestMethod]
+    public async Task UnknownAndUnsupportedCommands_DoNotPolluteProtocolOutput()
+    {
+        FakeSession session = new();
+        UciProtocol protocol = new(session, new EngineIdentity("Praxis Chess Engine", "Aaron Salisbury", "0.2.0"), new NullDiagnosticLogger());
+        using StringReader input = new("nonsense\nsetoption name Unknown value 1\nisready\nquit\n");
+        using StringWriter output = new();
+
+        await protocol.RunAsync(input, output, CancellationToken.None);
+
+        Assert.AreEqual($"readyok{Environment.NewLine}", output.ToString());
+    }
+
+    [TestMethod]
+    public async Task Go_EmitsSearchInfoBeforeBestMove()
+    {
+        FakeSession session = new();
+        UciProtocol protocol = new(session, new EngineIdentity("Praxis Chess Engine", "Aaron Salisbury", "0.2.0"), new NullDiagnosticLogger());
+        using StringReader input = new("go depth 2\nquit\n");
+        using StringWriter output = new();
+
+        await protocol.RunAsync(input, output, CancellationToken.None);
+
+        string text = output.ToString();
+        StringAssert.Contains(text, "info depth 1 score cp 0 nodes 1 pv e2e4");
+        Assert.IsLessThan(text.IndexOf("bestmove e2e4", StringComparison.Ordinal), text.IndexOf("info depth", StringComparison.Ordinal));
+    }
+
+    [TestMethod]
+    public async Task DebugCommands_AreAcceptedWithoutProtocolOutput()
+    {
+        FakeSession session = new();
+        UciProtocol protocol = new(session, new EngineIdentity("Praxis Chess Engine", "Aaron Salisbury", "0.2.0"), new NullDiagnosticLogger());
+        using StringReader input = new("debug on\ndebug off\nquit\n");
+        using StringWriter output = new();
+
+        await protocol.RunAsync(input, output, CancellationToken.None);
+
+        Assert.AreEqual(string.Empty, output.ToString());
     }
 
     private sealed class FakeSession : IEngineSession

@@ -56,7 +56,8 @@ internal sealed class EngineSession : IEngineSession
 
     public async Task<SearchResult> SearchAsync(SearchLimits limits, CancellationToken cancellationToken)
     {
-        IReadOnlyList<Move> legalMoves = _moveGenerator.GenerateLegalMoves(Position);
+        Position snapshot = Position.Clone();
+        IReadOnlyList<Move> legalMoves = _moveGenerator.GenerateLegalMoves(snapshot);
         if (legalMoves.Count == 0)
         {
             return new SearchResult(null, 0, 0, 0, []);
@@ -73,7 +74,7 @@ internal sealed class EngineSession : IEngineSession
         using CancellationTokenSource? deadlineCancellation = CreateDeadlineCancellation(limits.MoveTime, cancellationToken);
         CancellationToken effectiveCancellation = deadlineCancellation?.Token ?? cancellationToken;
 
-        Move? bookMove = _openingBook.FindMove(Position);
+        Move? bookMove = _openingBook.FindMove(snapshot);
         if (bookMove.HasValue && legalMoves.Contains(bookMove.Value))
         {
             _logger.Log($"Opening book move: {bookMove.Value}");
@@ -84,7 +85,7 @@ internal sealed class EngineSession : IEngineSession
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (Position.PieceCount > provider.MaximumPieceCount)
+            if (snapshot.PieceCount > provider.MaximumPieceCount)
             {
                 continue;
             }
@@ -107,7 +108,7 @@ internal sealed class EngineSession : IEngineSession
 
             try
             {
-                TablebaseProbeResult result = await provider.ProbeAsync(Position, probeCancellation.Token);
+                TablebaseProbeResult result = await provider.ProbeAsync(snapshot, probeCancellation.Token);
                 _logger.Log($"Tablebase probe completed: {providerName}; status {result.Status}");
 
                 if (result.Status == TablebaseProbeStatus.Success
@@ -139,8 +140,15 @@ internal sealed class EngineSession : IEngineSession
         }
 
         SearchLimits searchLimits = new(limits.Depth, searchTime, limits.Nodes);
-        Position snapshot = Position.Clone();
-        return await Task.Run(() => _searchService.Search(snapshot, searchLimits, effectiveCancellation), CancellationToken.None);
+        SearchResult searchResult = await Task.Run(() => _searchService.Search(snapshot, searchLimits, effectiveCancellation), CancellationToken.None);
+        if (searchResult.BestMove.HasValue && legalMoves.Contains(searchResult.BestMove.Value))
+        {
+            return searchResult;
+        }
+
+        Move fallback = legalMoves[0];
+        _logger.Log($"Search completed without a legal best move; returning legal fallback {fallback}");
+        return new SearchResult(fallback, searchResult.Score, searchResult.Depth, searchResult.Nodes, [fallback]);
     }
 
     private SearchResult DeadlineFallback(IReadOnlyList<Move> legalMoves)
