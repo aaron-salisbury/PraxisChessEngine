@@ -1,7 +1,9 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PraxisChessEngine.Business.Chess;
+using PraxisChessEngine.Business.Diagnostics;
 using PraxisChessEngine.Business.Engine;
 using PraxisChessEngine.Business.Search;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,7 +18,7 @@ public sealed class EngineSessionTests
         Move bookMove = Move.Parse("e2e4");
         FakeSearch search = new();
         FakeTablebase tablebase = new(7, Move.Parse("d2d4"));
-        EngineSession session = new(search, new MoveGenerator(), new FakeOpeningBook(bookMove), [tablebase]);
+        EngineSession session = new(search, new MoveGenerator(), new FakeOpeningBook(bookMove), [tablebase], new NullDiagnosticLogger());
 
         SearchResult result = await session.SearchAsync(new SearchLimits(2), CancellationToken.None);
 
@@ -26,12 +28,27 @@ public sealed class EngineSessionTests
     }
 
     [TestMethod]
+    public async Task SearchAsync_ReturnsForcedMoveBeforeCapabilities()
+    {
+        FakeSearch search = new();
+        FakeTablebase tablebase = new(7, Move.Parse("a1a2"));
+        EngineSession session = new(search, new MoveGenerator(), new FakeOpeningBook(null), [tablebase], new NullDiagnosticLogger());
+        session.SetPosition("8/8/8/8/8/8/Q7/k1K5 b - - 0 1", []);
+
+        SearchResult result = await session.SearchAsync(new SearchLimits(null, TimeSpan.FromSeconds(1), null), CancellationToken.None);
+
+        Assert.AreEqual(Move.Parse("a1a2"), result.BestMove);
+        Assert.IsFalse(tablebase.WasCalled);
+        Assert.IsFalse(search.WasCalled);
+    }
+
+    [TestMethod]
     public async Task SearchAsync_UsesTablebaseWhenPositionIsInScope()
     {
         Move tablebaseMove = Move.Parse("e1e2");
         FakeSearch search = new();
         FakeTablebase tablebase = new(7, tablebaseMove);
-        EngineSession session = new(search, new MoveGenerator(), new FakeOpeningBook(null), [tablebase]);
+        EngineSession session = new(search, new MoveGenerator(), new FakeOpeningBook(null), [tablebase], new NullDiagnosticLogger());
         session.SetPosition("7k/8/8/8/8/8/8/4K3 w - - 0 1", []);
 
         SearchResult result = await session.SearchAsync(new SearchLimits(2), CancellationToken.None);
