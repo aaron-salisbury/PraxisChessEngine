@@ -32,3 +32,35 @@ jobs:
 
       - name: Test
         run: dotnet test src/PraxisChessEngine.slnx --configuration Release --no-build
+
+  uci-smoke:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+
+      - name: Publish Praxis
+        run: dotnet publish src/PraxisChessEngine.CLIApp/PraxisChessEngine.CLIApp.csproj --configuration Release --output artifacts/praxis
+
+      - name: Install Cute Chess
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes cutechess
+
+      - name: Run UCI self-play smoke test
+        run: |
+          mkdir -p artifacts/smoke
+          cutechess-cli \
+            -engine name=PraxisWhite cmd="$GITHUB_WORKSPACE/artifacts/praxis/PraxisChessEngine" proto=uci \
+            -engine name=PraxisBlack cmd="$GITHUB_WORKSPACE/artifacts/praxis/PraxisChessEngine" proto=uci \
+            -each tc=10+0.1 \
+            -rounds 2 \
+            -repeat \
+            -recover \
+            -pgnout artifacts/smoke/praxis-smoke.pgn
