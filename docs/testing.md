@@ -20,7 +20,7 @@ The smoke test is meant to catch integration failures such as:
 - broken position synchronization;
 - basic clock-management failures.
 
-This is deliberately a smoke test, not a playing-strength benchmark. Strength and regression matches belong after the modernization roadmap is complete.
+This is deliberately a smoke test, not a playing-strength benchmark.
 
 ### Windows with WSL
 
@@ -40,6 +40,18 @@ sudo apt install cmake ninja-build qt6-base-dev qt6-svg-dev qt6-5compat-dev
 ```
 
 Subsequent smoke tests reuse the cached Cute Chess executable.
+
+If execution policies prevent execution of .ps1 scripts, a common solution development machines is to allow locally created scripts for your Windows user:
+
+```bash
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+If you'd rather not change your PowerShell configuration at all, you can bypass the policy for this one invocation:
+
+```bash
+powershell -ExecutionPolicy Bypass -File ./build/smoke-test.ps1
+```
 
 ### Linux
 
